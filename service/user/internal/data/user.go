@@ -34,7 +34,10 @@ type userRepo struct {
 }
 
 func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
-	data.db.AutoMigrate(&User{})
+	err := data.db.AutoMigrate(&User{})
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	return &userRepo{
 		data: data,
