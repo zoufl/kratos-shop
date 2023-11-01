@@ -22,7 +22,9 @@ var Db *data.Data
 var ctx context.Context
 
 func initialize(db *gorm.DB) error {
-	err := db.AutoMigrate(&data.User{})
+	err := db.AutoMigrate(
+		&data.User{},
+	)
 
 	return errors.WithStack(err)
 }

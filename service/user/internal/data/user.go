@@ -34,11 +34,6 @@ type userRepo struct {
 }
 
 func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
-	err := data.db.AutoMigrate(&User{})
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	return &userRepo{
 		data: data,
 		log:  log.NewHelper(logger),
@@ -48,7 +43,7 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 func (r *userRepo) CreateUser(ctx context.Context, u *biz.User) (*biz.User, error) {
 	var user User
 
-	result := r.data.db.Where(&biz.User{Mobile: u.Mobile}).First(&user)
+	result := r.data.db.Where(&User{Mobile: u.Mobile}).First(&user)
 	if result.RowsAffected == 1 {
 		return nil, status.Errorf(codes.AlreadyExists, "用户已存在")
 	}

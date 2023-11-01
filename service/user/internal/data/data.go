@@ -49,8 +49,8 @@ func NewDB(c *conf.Data) *gorm.DB {
 	db, err := gorm.Open(mysql.Open(c.Database.Source), &gorm.Config{
 		Logger:                                   newLogger,
 		DisableForeignKeyConstraintWhenMigrating: true,
-		NamingStrategy: schema.NamingStrategy{
-			SingularTable: true,
+		NamingStrategy:                           schema.NamingStrategy{
+			// SingularTable: true,
 		},
 	})
 

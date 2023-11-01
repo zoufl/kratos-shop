@@ -37,8 +37,55 @@ func (s *UserService) CreateUser(ctx context.Context, req *pb.CreateUserInfo) (*
 		NickName: user.NickName,
 		Gender:   user.Gender,
 		Role:     int32(user.Role),
-		Birthday: user.Birthday,
+		Birthday: uint64(user.Birthday.Unix()),
 	}
 
 	return &userInfoResp, nil
+}
+
+func (s *UserService) GetUserList(ctx context.Context, req *pb.PageInfo) (*pb.UserListResponse, error) {
+	list, total, err := s.uc.List(ctx, int(req.Pn), int(req.PSize))
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &pb.UserListResponse{}
+	resp.Total = int32(total)
+
+	for _, user := range list {
+		userInfo := UserResponse(user)
+
+		if user.Birthday != nil {
+			userInfo.Birthday = uint64(user.Birthday.Unix())
+		}
+
+		resp.Data = append(resp.Data, &userInfo)
+	}
+
+	return resp, nil
+}
+
+func UserResponse(user *biz.User) pb.UserInfoResponse {
+	userInfoRsp := pb.UserInfoResponse{
+		Id:       user.ID,
+		Mobile:   user.Mobile,
+		Password: user.Password,
+		NickName: user.NickName,
+		Gender:   user.Gender,
+		Role:     int32(user.Role),
+	}
+	if user.Birthday != nil {
+		userInfoRsp.Birthday = uint64(user.Birthday.Unix())
+	}
+	return userInfoRsp
+}
+
+func (s *UserService) GetUserByMobile(ctx context.Context, req *pb.MobileRequest) (*pb.UserInfoResponse, error) {
+	user, err := s.uc.UserByMobile(ctx, req.Mobile)
+	if err != nil {
+		return nil, err
+	}
+	resp := UserResponse(user)
+
+	return &resp, nil
 }
