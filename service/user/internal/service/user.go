@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"time"
 
 	pb "user/api/user/v1"
 	"user/internal/biz"
@@ -82,6 +84,44 @@ func UserResponse(user *biz.User) pb.UserInfoResponse {
 
 func (s *UserService) GetUserByMobile(ctx context.Context, req *pb.MobileRequest) (*pb.UserInfoResponse, error) {
 	user, err := s.uc.UserByMobile(ctx, req.Mobile)
+	if err != nil {
+		return nil, err
+	}
+	resp := UserResponse(user)
+
+	return &resp, nil
+}
+
+func (s *UserService) UpdateUser(ctx context.Context, req *pb.UpdateUserInfo) (*emptypb.Empty, error) {
+	birthDay := time.Unix(int64(req.Birthday), 0)
+	user, err := s.uc.UpdateUser(ctx, &biz.User{
+		ID:       req.Id,
+		Gender:   req.Gender,
+		Birthday: &birthDay,
+		NickName: req.NickName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if user == false {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s *UserService) CheckPassword(ctx context.Context, req *pb.PasswordCheckInfo) (*pb.CheckResponse, error) {
+	check, err := s.uc.CheckPassword(ctx, req.Password, req.EncryptedPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.CheckResponse{Success: check}, nil
+}
+
+func (s *UserService) GetUserById(ctx context.Context, req *pb.IdRequest) (*pb.UserInfoResponse, error) {
+	user, err := s.uc.UserById(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}

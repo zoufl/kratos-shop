@@ -4,6 +4,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
+	"time"
 	"user/internal/biz"
 	"user/internal/mocks/mrepo"
 )
@@ -18,13 +19,14 @@ var _ = ginkgo.Describe("UserUsecase", func() {
 	})
 
 	ginkgo.It("Create", func() {
+		b := time.Now()
 		info := &biz.User{
 			ID:       1,
 			Mobile:   "13803881388",
 			Password: "admin123456",
 			NickName: "aliliin",
 			Role:     1,
-			Birthday: 693629981,
+			Birthday: &b,
 		}
 
 		mUserRepo.EXPECT().CreateUser(ctx, gomock.Any()).Return(info, nil)
